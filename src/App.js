@@ -1,8 +1,35 @@
-import { useEffect } from "react";
+import { useEffect, useReducer } from "react";
 import Header from "./Header";
 import Main from "./Main";
 
+const initialState = {
+    questions: [],
+
+    // 'loading', 'error', 'ready', 'active', 'finished'
+    status: "loading",
+};
+
+function reducer(state, action) {
+    switch (action.type) {
+        case "dataReceived":
+            return {
+                ...state,
+                questions: action.payload,
+                status: "ready",
+            };
+        case "dataFailed":
+            return {
+                ...state,
+                status: "error",
+            };
+        default:
+            throw new Error("Action is unknown");
+    }
+}
+
 export default function App() {
+    const [state, dispatch] = useReducer(reducer, initialState);
+
     useEffect(function () {
         async function getData() {
             try {
@@ -11,9 +38,9 @@ export default function App() {
                 if (!res.ok) {
                     throw new Error("Couldn't fetch the data");
                 }
-                console.log(data);
+                dispatch({ type: "dataReceived", payload: data });
             } catch (err) {
-                console.error(err.message);
+                dispatch({ type: "dataFailed" });
             }
         }
 
