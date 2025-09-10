@@ -21,6 +21,7 @@ const initialState = {
     answer: null,
     points: 0,
     highscore: 0,
+    secondsRemaining: 10,
 };
 
 function reducer(state, action) {
@@ -71,6 +72,9 @@ function reducer(state, action) {
                 status: "ready",
             };
 
+        case "tick":
+            return { ...state, secondsRemaining: state.secondsRemaining - 1 };
+
         default:
             throw new Error("Action is unknown");
     }
@@ -78,8 +82,18 @@ function reducer(state, action) {
 
 export default function App() {
     // Nested destructuring
-    const [{ questions, status, index, answer, points, highscore }, dispatch] =
-        useReducer(reducer, initialState);
+    const [
+        {
+            questions,
+            status,
+            index,
+            answer,
+            points,
+            highscore,
+            secondsRemaining,
+        },
+        dispatch,
+    ] = useReducer(reducer, initialState);
 
     const numQuestions = questions.length;
     const maxPossiblePoints = questions.reduce(
@@ -131,7 +145,10 @@ export default function App() {
                             answer={answer}
                         />
                         <Footer>
-                            <Timer />
+                            <Timer
+                                dispatch={dispatch}
+                                secondsRemaining={secondsRemaining}
+                            />
                             <NextButton
                                 dispatch={dispatch}
                                 answer={answer}
