@@ -1,4 +1,4 @@
-const { createContext, useContext, useReducer } = require("react");
+const { createContext, useContext, useReducer, useEffect } = require("react");
 
 const QuizContext = createContext();
 
@@ -82,7 +82,7 @@ function reducer(state, action) {
     }
 }
 
-function QuizProvider() {
+function QuizProvider({ children }) {
     const [
         {
             questions,
@@ -95,6 +95,48 @@ function QuizProvider() {
         },
         dispatch,
     ] = useReducer(reducer, initialState);
+
+    const numQuestions = questions.length;
+    const maxPossiblePoints = questions.reduce(
+        (prev, cur) => prev + cur.points,
+        0
+    );
+
+    useEffect(function () {
+        async function getData() {
+            try {
+                const res = await fetch("http://localhost:9000/questions");
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error("Couldn't fetch the data");
+                }
+                dispatch({ type: "dataReceived", payload: data });
+            } catch (err) {
+                dispatch({ type: "dataFailed" });
+            }
+        }
+
+        getData();
+    }, []);
+
+    return (
+        <QuizProvider
+            value={{
+                questions,
+                status,
+                index,
+                answer,
+                points,
+                highscore,
+                secondsRemaining,
+                numQuestions,
+                maxPossiblePoints,
+                dispatch,
+            }}
+        >
+            {children}
+        </QuizProvider>
+    );
 }
 
 function useQuiz() {
