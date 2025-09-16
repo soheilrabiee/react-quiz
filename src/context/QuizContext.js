@@ -1,4 +1,4 @@
-const { createContext, useContext, useReducer, useEffect } = require("react");
+import { createContext, useContext, useReducer, useEffect } from "react";
 
 const QuizContext = createContext();
 
@@ -120,7 +120,7 @@ function QuizProvider({ children }) {
     }, []);
 
     return (
-        <QuizProvider
+        <QuizContext.Provider
             value={{
                 questions,
                 status,
@@ -135,7 +135,7 @@ function QuizProvider({ children }) {
             }}
         >
             {children}
-        </QuizProvider>
+        </QuizContext.Provider>
     );
 }
 
